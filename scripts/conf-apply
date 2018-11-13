@@ -1,0 +1,14 @@
+#! /bin/bash
+
+set -euo pipefail
+
+if [[ $UID != 0 ]]; then
+    echo "Please run this script with sudo:"
+    echo "sudo $0 $*"
+    exit 1
+fi
+
+cd /etc/puppetlabs/puppet
+sudo /opt/puppetlabs/puppet/bin/r10k puppetfile install
+
+/opt/puppetlabs/bin/puppet apply --modulepath /etc/puppetlabs/puppet/third_party:/etc/puppetlabs/puppet/modules /etc/puppetlabs/puppet/manifests/site.pp

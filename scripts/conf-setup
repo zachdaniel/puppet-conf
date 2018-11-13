@@ -1,0 +1,113 @@
+#! /bin/bash
+
+set -euo pipefail
+
+# This script must always stay idempotent!
+
+if [[ $UID != 0 ]]; then
+    echo "Please run this script with sudo:"
+    exit 1
+fi
+
+
+function setup_links () {
+    echo "symlinking conf directories to system_puppet directories"
+}
+
+echo "Ensure that your git ssh key is setup"
+echo "See: https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/"
+
+read -p "Press Y/y when your git ssh key is set up." -n 1 -r
+echo    # (optional) move to a new line
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo "Rerun this script when you have set up your github ssh key"
+    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Setting up for OSX"
+
+    echo "installing brew"
+    sudo -u zacharydaniel /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+    echo "installing puppet"
+    sudo -u zacharydaniel brew cask install puppetlabs/puppet/puppet-agent
+
+    echo "installing r10k"
+    sudo /opt/puppetlabs/puppet/bin/gem install r10k
+
+    sudo -Hu zacharydaniel brew install git
+    sudo -Hu zacharydaniel brew link --force git
+
+    echo "installing zsh"
+    sudo -Hu zacharydaniel sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+    if [ ! -d ~/conf ]
+    then
+        sudo -H -u zacharydaniel bash -c 'git clone git@github.com:zachdaniel/conf.git'
+    else
+        sudo -H -u zacharydaniel bash -c 'cd ~/conf && git pull'
+    fi
+
+    ln -shfF ~/conf/puppet/modules /etc/puppetlabs/puppet/modules
+    ln -shfF ~/conf/puppet/third_party /etc/puppetlabs/puppet/third_party
+    ln -shfF ~/conf/puppet/manifests /etc/puppetlabs/puppet/manifests
+    ln -shfF ~/conf/puppet/hiera.yaml /etc/puppetlabs/puppet/hiera.yaml
+    ln -shfF ~/conf/puppet/data /etc/puppetlabs/puppet/data
+    ln -shfF ~/conf/puppet/Puppetfile /etc/puppetlabs/puppet/Puppetfile
+
+    sudo ~/conf/scripts/conf-apply
+
+    echo ""
+    echo ""
+    echo "URGENT!"
+    echo "Once this is done, don't forget to set up dropbox with all your devices :)"
+else
+    echo "Setting up for ubuntu"
+
+    echo "installing curl"
+    sudo apt-get install -y curl
+
+    echo "adding puppet-agent repository"
+    curl -O https://apt.puppetlabs.com/puppetlabs-release-pc1-xenial.deb
+    sudo dpkg -i puppetlabs-release-pc1-xenial.deb
+    sudo apt-get update
+    echo "installing puppet-agent"
+    sudo apt-get install -y puppet-agent
+    echo "installing r10k"
+    sudo /opt/puppetlabs/puppet/bin/gem install r10k
+    echo "installing vim"
+    sudo apt-get install -y vim
+    echo "installing git"
+    sudo apt-get install -y git
+
+    if [ ! -d ~/conf ]
+    then
+        sudo -H -u zacharydaniel bash -c 'git clone git@github.com:zachdaniel/conf.git'
+    else
+        sudo -H -u zacharydaniel bash -c 'cd ~/conf && git pull'
+    fi
+
+    ln -sfn ~/conf/puppet/modules /etc/puppetlabs/puppet/modules
+    ln -sfn ~/conf/puppet/third_party /etc/puppetlabs/puppet/third_party
+    ln -sfn ~/conf/puppet/manifests /etc/puppetlabs/puppet/manifests
+    ln -sfn ~/conf/puppet/hiera.yaml /etc/puppetlabs/puppet/hiera.yaml
+    ln -sfn ~/conf/puppet/data /etc/puppetlabs/puppet/data
+    ln -sfn ~/conf/puppet/Puppetfile /etc/puppetlabs/puppet/Puppetfile
+
+    sudo ~/conf/scripts/conf-apply
+
+    echo ""
+    echo ""
+    echo "URGENT!"
+    echo "Once this is done, don't forget to set up dropbox with all your devices :)"
+
+    if [[ ! $SHELL == *zsh* ]]
+    then
+        chsh -s `which zsh`
+        echo "Restart required! Do so via 'sudo shutdown -r 0'"
+    else
+        echo "Setup is complete."
+    fi
+fi

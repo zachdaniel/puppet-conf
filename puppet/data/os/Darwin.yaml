@@ -1,0 +1,9 @@
+---
+users::home_dir: <home_dir> # Probably just /Users/<username>
+users::username: <username>
+users::groups:
+  - admin
+  - staff
+homebrew::user: <your username>
+homebrew::multiuser: false
+puppet::path: /etc/puppetlabs/puppet

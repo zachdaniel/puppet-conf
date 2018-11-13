@@ -1,0 +1,15 @@
+[user]
+	name = <username>
+	email = <email>
+[push]
+	default = current
+[pull]
+	rebase = true
+[github]
+	user = <user>
+[rerere]
+	enabled = true
+[rebase]
+	autosquash = true
+[core]
+	excludesfile = <path_to_gitignore>

@@ -1,0 +1,12 @@
+---
+users::home_dir: <homedir> # Probably just /home/username
+users::username: <username>
+users::groups:
+  - adm
+  - cdrom
+  - sudo
+  - dip
+  - plugdev
+  - lpadmin
+  - sambashare
+puppet::path: /etc/puppetlabs/puppet
