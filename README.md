@@ -13,6 +13,8 @@ right from the outset for you. I set it up a while ago, and there could
 definitely be bugs with the setup script. I'd like to know them though, so let
 me know if you find any!
 
+This also assumes that its cloned into `~/conf` so you might need to do some
+work if you want to put it elsewhere.
 
 ## Setup:
 
@@ -22,3 +24,4 @@ me know if you find any!
   to make it generic, feel free to PR that. Otherwise, replace my info with yours.
 * run `sudo scripts/conf-setup`
 * run `sudo scripts/conf-apply` to apply your puppet configuration
+* new modules can be added, but must be `include`d into `/puppet/manifests/site.pp`
