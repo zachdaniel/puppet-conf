@@ -3,7 +3,7 @@ My puppet configuration
 
 # IMPORTANT
 There are a *lot* of assumptions in here about how I configure my machine.
-Please read *every** file before you use this on your own. The way puppet works,
+Please read *every* file before you use this on your own. The way puppet works,
 you need to do everything with sudo and I really don't want to be responsible
 for something in this repo breaking your machine.
 
